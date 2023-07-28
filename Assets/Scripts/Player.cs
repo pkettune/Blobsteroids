@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
 	{
 		rigidbody = GetComponent<Rigidbody2D>();
 	}
-	void Update()
+	private void Update()
     {
         thrusting = (Input.GetKey(KeyCode.UpArrow));
 
@@ -37,13 +37,13 @@ public class Player : MonoBehaviour
 		}
 
     }
+	//physics here so it's not affected by fps
 	private void FixedUpdate()
 	{
 		if (thrusting)
 		{
 			rigidbody.AddForce(this.transform.up * this.thrustSpeed);
 		}
-
 		if (turnDirection != 0.0f)
 		{
 			rigidbody.AddTorque(turnDirection * this.turnSpeed);
@@ -53,5 +53,19 @@ public class Player : MonoBehaviour
 	{
 		Bullet bullet = Instantiate(this.bulletPrefab, this.transform.position, this.transform.rotation);
 		bullet.Project(this.transform.up);
+	}
+
+	private void OnCollisionEnter2D(Collision2D collision)
+	{
+		if (collision.gameObject.tag == "Cloud")
+		{
+			_rigidbody.velocity = Vector3.zero;
+			_rigidbody.angularVelocity = 0.0f;
+
+			this.gameObject.SetActive(false);
+
+//     bad/slow option to make scripts talk to each other 
+			FindObjectOfType<GameManager>().PlayerDied();
+		}
 	}
 }
